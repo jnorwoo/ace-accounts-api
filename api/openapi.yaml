@@ -1,0 +1,73 @@
+openapi: 3.0.3
+info:
+  title: Accounts API
+  version: 0.1.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /accounts:
+    get:
+      summary: List accounts
+      operationId: listAccounts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Account" }
+                  nextPageToken:
+                    type: string
+                    nullable: true
+    post:
+      summary: Create an account
+      operationId: createAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+  /accounts/{id}:
+    get:
+      summary: Get account by id
+      operationId: getAccount
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+        "404":
+          description: Not found
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id: { type: string, example: acc_ab12cd34 }
+        name: { type: string }
+        email: { type: string, format: email }
+      required: [id, name, email]
+    AccountCreate:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+      required: [name, email]
