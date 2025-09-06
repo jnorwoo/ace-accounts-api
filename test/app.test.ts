@@ -11,6 +11,6 @@ describe("accounts api day 1", () => {
   it("Accounts should return empty list", async () => {
     const response = await request(app).get("/accounts");
     expect(response.status).toBe(200);
-    expect(Array.isArray(response.body.items)).toBe(true);
+    expect(Array.isArray((response.body as { items: unknown[] }).items)).toBe(true);
   });
 });
