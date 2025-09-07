@@ -1,19 +1,28 @@
-/* Jest unit test: mocks DDB to avoid Docker dependency */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+// test/create.test.ts
+import { beforeEach, expect, jest, test } from '@jest/globals';
+// test/list.test.ts
 jest.mock("../src/aws/ddb", () => {
-  const actual: Record<string, unknown> = jest.requireActual("../src/aws/ddb");
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const real = jest.requireActual("../src/aws/ddb") as Record<string, unknown>;
   return {
-    ...actual,
-    ddb: { send: jest.fn().mockResolvedValue({ Items: [{ id: "acc_1234", name: "Test", email: "t@e.com" }] }) },
+    ...real,
+    ddb: { send: jest.fn<any>().mockResolvedValue({ Items: [{ id: "acc_x", name: "N", email:"e@e.com"}] }) },
     tableName: () => "Accounts"
   };
 });
-
-import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { handler } from "../src/handlers/list";
-test("list returns 200 with items", async () => {
-  const res = await handler({} as APIGatewayProxyEventV2);
-  expect(res.statusCode).toBe(200);
-  const body = JSON.parse(res.body as string) as { items: unknown[] };
+import { makeEvent } from "./_mocks";
+
+test("list returns items", async () => {
+  const r = await handler(makeEvent("GET", "/accounts"));
+  expect(r.statusCode).toBe(200);
+  const body = JSON.parse(r.body as string);
   expect(Array.isArray(body.items)).toBe(true);
-  expect(body.items.length).toBeGreaterThan(0);
+  expect(body.items.length).toBe(1);
 });
